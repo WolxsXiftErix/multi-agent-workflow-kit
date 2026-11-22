@@ -10,6 +10,15 @@ Every rule here exists because breaking it cost real money or real bugs on a sol
 project built almost entirely by AI agents. The numbers quoted in the rules were
 measured from that project's own session logs; treat them as one data point, not a law.
 
+<p align="center">
+  <img src="docs/demo.gif" alt="Animation of one request moving through the author's setup: manager, search seat, workers, tester, two fresh review rounds, merge" width="600" />
+</p>
+<p align="center"><sub>One request in the author's own, larger setup, which adds a sub-manager, scripts and a
+worker from another vendor, among other things. "GM" is the manager seat and "land" means
+merge. That worker ran without commit access, and the tester ran before the reviews; in
+this kit, workers commit to their own branch and the tester comes after the reviews
+(pipeline step 7).</sub></p>
+
 ## Fastest start: Claude Code skill
 
 You don't need to wire anything up by hand. Paste this into Claude Code in your project:
@@ -98,6 +107,7 @@ agents/tester.md               tester role
 templates/task-brief.md        fill-in brief for a worker
 templates/review-prompt.md     fill-in prompt for a reviewer
 templates/bounce-back.md       fill-in note for sending work back
+docs/demo.gif                  the animation at the top of this file
 LICENSE                        MIT
 ```
 
@@ -149,10 +159,40 @@ and reviewer in separate contexts, and (c) see the resulting diff.
 If your tool cannot spawn sub-tasks at all, run each seat as a separate session or
 terminal. The rules still hold: separate contexts, writer never reviews, manager merges.
 
+## Using it with an orchestrator
+
+Orchestrators such as [CAS](https://github.com/codingagentsystem/cas) run the seats for
+you: they start several agent sessions, give each worker its own git worktree, and pass
+tasks and messages between a supervisor and its workers. This kit does not do that. It is
+the set of rules for how those seats are used: who reviews, which model each seat gets,
+how long a subagent may sit idle, and what counts as "done". The two can be combined; the
+orchestrator's supervisor plays the kit's manager seat.
+
+- Load `rules/coordinator-rules.md` and `rules/pipeline.md` wherever the supervisor reads
+  its instructions (for Claude Code-based tools, usually `CLAUDE.md`).
+- Use the bodies of `agents/worker.md`, `agents/reviewer.md` and `agents/tester.md` as the
+  role prompts for the orchestrator's agents, with an explicit model for each if the
+  orchestrator lets you set one.
+- If the orchestrator already creates a worktree and branch per worker, that covers the
+  own-branch-and-worktree part of pipeline step 3; still make sure each branch starts from the latest main.
+- If the supervisor that hands out the work also reviews it before merging, add a separate
+  reviewer seat in front of the merge. Under the iron rule, the seat that dispatched the
+  work does not review it; the supervisor still merges.
+- Keep the cost rules: cheapest tier that can do the job, artifacts checked before "done",
+  and no seat that runs as a subagent idle past about 4 minutes. A worker that runs as
+  its own session (not a subagent) usually keeps its cache longer; check what your
+  provider does.
+
+Check your orchestrator's docs for where it reads instructions and agent definitions;
+these differ between tools and versions.
+
 ## What this kit is not
 
 - Not a framework, a plugin or a script bundle. There is no code to run. The skill is one
   Markdown file of instructions, and you can set everything up by hand instead.
+- Not an orchestrator. It does not launch terminals or schedule agents for you; your
+  tool's subagents or separate sessions do that, or you can pair it with an orchestrator (see "Using it with
+  an orchestrator").
 - Not tied to one vendor. Model names in the tier table are examples.
 - Not complete. Add your own project rules next to these; keep them short, because every
   agent re-reads them on every request.
