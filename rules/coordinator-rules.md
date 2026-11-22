@@ -118,7 +118,8 @@ mean the brief, not the worker, is the problem.
   `git merge-tree --write-tree <A> <B>` (Git 2.38+) shows conflicts without touching either branch.
   *Why:* several of the most expensive items in our cost log were two parallel work streams
   editing the same code; merging them hit 6, 10 and 7 conflicts, all resolved by hand.
-- **Always branch from the latest main.**
+- **Always branch from the latest main.** Parallel workers each get their own branch and
+  their own `git worktree`, created by the manager; never two workers in one working tree.
   *Why:* one branch cut from a two-day-old main cost an extra 330k tokens to merge.
 - **Split implementation by code area, not by item count.**
   *Why:* splitting by count puts two workers in the same function.
@@ -147,7 +148,8 @@ mean the brief, not the worker, is the problem.
   page, judging whether visuals look right. It only tests, never edits; problems go back
   to the writer. Its result is verification, not a review round.
   *Why:* writers who cannot script a check tend to write "should be fine" instead.
-- **Only the manager merges.** Other seats push their own branch and report.
+- **Only the manager merges.** Other seats commit to their own branch (and push it, if the repo has a
+  remote) and report.
   *Why:* one merge point means one place where integration is checked.
 - **No routine status messages.** Seats speak up only to get a decision, when stuck, or
   when delivering. Progress goes into a notes file, not into messages.

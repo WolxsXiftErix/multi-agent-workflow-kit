@@ -33,7 +33,7 @@
   commands in the background and poll every ~240 s. Over an hour: hand the command back.
 - Same error twice: stop and report. Same check failing after three attempts: stop.
 - Build first; collect any open questions into one list at the end.
-- <Commit and push to your own branch> / <Do not commit; the manager will>.
+- Commit to your own branch; push only if the repo has a remote.
 
 ## Done when
 

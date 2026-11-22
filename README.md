@@ -10,6 +10,43 @@ Every rule here exists because breaking it cost real money or real bugs on a sol
 project built almost entirely by AI agents. The numbers quoted in the rules were
 measured from that project's own session logs; treat them as one data point, not a law.
 
+## Fastest start: Claude Code skill
+
+You don't need to wire anything up by hand. Paste this into Claude Code in your project:
+
+```
+Clone https://github.com/WolxsXiftErix/multi-agent-workflow-kit into
+~/.claude/skills/multi-agent-workflow (git pull if it is already there), then read its
+SKILL.md and follow the Setup section for this repo. Show me every change before you
+make it.
+```
+
+Claude installs the skill and shows you its plan. Once you say yes, it copies the rules
+and the pipeline into `.claude/workflow/`, imports them from `CLAUDE.md`, and adds the
+worker, reviewer and tester to `.claude/agents/`. Restart Claude Code once so the agents
+load. After that you only describe what you want ("add a settings page", "fix the login
+bug"). The main session acts as the manager: it dispatches workers, runs two review rounds
+with fresh reviewers, and sends what scripts can't check to the tester. It merges by your
+branch rules; if you have none, it asks first. `rules/pipeline.md` spells out each step.
+
+To install it yourself instead:
+
+```
+git clone --depth 1 https://github.com/WolxsXiftErix/multi-agent-workflow-kit ~/.claude/skills/multi-agent-workflow
+```
+
+In Windows PowerShell:
+
+```
+git clone --depth 1 https://github.com/WolxsXiftErix/multi-agent-workflow-kit "$HOME/.claude/skills/multi-agent-workflow"
+```
+
+If the folder already exists, run `git pull` inside it instead.
+
+Then tell Claude Code: "set up the multi-agent workflow in this repo".
+
+Other tools can read `SKILL.md` as plain instructions. See "Using it with your tool" below.
+
 ## The one iron rule
 
 **The seat that wrote it never reviews it. Neither does the seat that dispatched it.**
@@ -31,8 +68,8 @@ manager ──> search seat ──> worker ──> review 1 ──> fix ──> 
 - A third review round runs when round 2 still finds a lot.
 - Anything scripts cannot check (walking through a real page, judging visuals) goes to a
   separate tester seat that only tests.
-- Only the manager merges. Workers push their own branch (or leave changes for the
-  manager) and report back; nobody else merges.
+- Only the manager merges. Workers commit to their own branch (and push it, if the repo
+  has a remote) and report back; nobody else merges.
 
 ## Glossary
 
@@ -52,6 +89,8 @@ manager ──> search seat ──> worker ──> review 1 ──> fix ──> 
 
 ```
 README.md                      this file
+SKILL.md                       Claude Code skill: sets up the repo, then runs the pipeline per request
+rules/pipeline.md              the step order the manager follows for every request
 rules/coordinator-rules.md     the rules the manager follows (put in your project instructions)
 agents/worker.md               worker role (Claude Code subagent format; body works as a plain prompt)
 agents/reviewer.md             reviewer role
@@ -62,10 +101,10 @@ templates/bounce-back.md       fill-in note for sending work back
 LICENSE                        MIT
 ```
 
-## Quick start
+## Quick start (by hand)
 
-1. Copy `rules/coordinator-rules.md` into your repo and make your tool load it as project
-   instructions (see the per-tool notes below).
+1. Copy `rules/coordinator-rules.md` and `rules/pipeline.md` into your repo and make your
+   tool load them as project instructions (see the per-tool notes below).
 2. Copy the three files in `agents/` where your tool looks for role or agent definitions,
    or keep them in the repo and reference them when you start a sub-task.
 3. For each piece of work: have a cheap search seat pin the files and line numbers, fill in
@@ -83,8 +122,9 @@ LICENSE                        MIT
 These notes stay generic on purpose. Tool features change; check your tool's docs for the
 exact file names and commands.
 
-**Claude Code.** Put the rules in `CLAUDE.md` (paste them, or import the file with an
-`@rules/coordinator-rules.md` line). Copy `agents/*.md` into `.claude/agents/`; they are
+**Claude Code.** The skill above does all of this for you. By hand: put the rules and the
+pipeline in `CLAUDE.md` (paste them, or import them with `@rules/coordinator-rules.md` and
+`@rules/pipeline.md` lines). Copy `agents/*.md` into `.claude/agents/`; they are
 already in the subagent format (frontmatter `name`, `description`, `tools`). The
 definitions leave `model` unset, so a subagent inherits the main session's model. Pass a
 model on every dispatch, or add `model:` to each file's frontmatter (for example `sonnet`
@@ -111,7 +151,8 @@ terminal. The rules still hold: separate contexts, writer never reviews, manager
 
 ## What this kit is not
 
-- Not a framework, a plugin or a script bundle. There is nothing to install.
+- Not a framework, a plugin or a script bundle. There is no code to run. The skill is one
+  Markdown file of instructions, and you can set everything up by hand instead.
 - Not tied to one vendor. Model names in the tier table are examples.
 - Not complete. Add your own project rules next to these; keep them short, because every
   agent re-reads them on every request.
