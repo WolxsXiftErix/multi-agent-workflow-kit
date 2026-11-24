@@ -54,6 +54,10 @@ If the folder already exists, run `git pull` inside it instead.
 
 Then tell Claude Code: "set up the multi-agent workflow in this repo".
 
+Install the whole folder, not only `SKILL.md`: Setup reads `rules/`, `agents/` and
+`templates/` from next to it, so uploading `SKILL.md` alone as an account skill will not
+work.
+
 Other tools can read `SKILL.md` as plain instructions. See "Using it with your tool" below.
 
 ## The one iron rule
@@ -70,8 +74,9 @@ Review goes to a fresh seat that gets the code and the diff, not the writer's re
 manager ──> search seat ──> worker ──> review 1 ──> fix ──> review 2 ──> fix ──> merge
  (plans,     (pins files,    (does     (fresh       (by the  (another    (checked   (manager
   dispatches) functions,      exactly   seat, reads  writer)  fresh seat) by a seat  only)
-              line numbers    the       the diff)                         that did
-              into the brief) brief)                                      not write it)
+              line numbers    the       the diff)                         that neither
+              into the brief) brief)                                      wrote nor
+                                                                          dispatched it)
 ```
 
 - A third review round runs when round 2 still finds a lot.
@@ -188,8 +193,9 @@ these differ between tools and versions.
 
 ## What this kit is not
 
-- Not a framework, a plugin or a script bundle. There is no code to run. The skill is one
-  Markdown file of instructions, and you can set everything up by hand instead.
+- Not a framework, a plugin or a script bundle. There is no code to run. The skill is a
+  `SKILL.md` plus the `rules/`, `agents/` and `templates/` folders that Setup copies
+  from, all plain Markdown, and you can set everything up by hand instead.
 - Not an orchestrator. It does not launch terminals or schedule agents for you; your
   tool's subagents or separate sessions do that, or you can pair it with an orchestrator (see "Using it with
   an orchestrator").

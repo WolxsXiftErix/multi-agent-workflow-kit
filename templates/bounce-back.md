@@ -1,7 +1,11 @@
 # Bounce-back
 
 <!-- Send back to the SAME agent that did the work, not a new one. Exactly four things
-     per item. If this item has bounced 3 times, stop and re-check how the task was cut. -->
+     per item. If this item has bounced 3 times, stop and re-check how the task was cut.
+     The worker has usually sat idle through the review, so its cache has expired and this
+     message re-reads its whole context at full price. That is the intended trade (rule 3
+     in coordinator-rules.md allows resuming a seat to fix its own work); put every
+     finding in one bounce-back instead of sending several. -->
 
 **To:** <the seat that wrote it>
 **Bounce count for this item:** <1 / 2 / 3>
@@ -24,5 +28,5 @@
 ## When you are done
 
 Rerun <check command> and report per item: what you changed (or why you did not, if you
-think the finding is wrong), and the check's last lines. A seat that did not write the
-fix will check it.
+think the finding is wrong), and the check's last lines. A seat that neither wrote nor
+dispatched the fix will check it.

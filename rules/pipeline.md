@@ -8,6 +8,14 @@ wrote or dispatched. `coordinator-rules.md` holds the reasons; this file holds t
    looks like. Ask the user only for decisions that are really theirs, such as product
    choices or anything destructive. Otherwise pick a sensible default, say which one, and
    go on.
+   **Trivial lane:** if the change is small, local and low-risk (a typo, a one-line fix,
+   a comment or doc edit, nothing near a trust boundary), and you can already name the
+   file, skip step 2 and step 7 and dispatch one worker. If something needs a real-page
+   check, it is not trivial. Round 1 is still a fresh `reviewer` over the diff; round 2
+   is another fresh `reviewer` over the same diff plus any fixes made after round 1.
+   Everything else still applies: own branch and worktree, reviewers
+   that neither wrote nor dispatched the work, and the merge from the manager seat. If
+   round 1 reports any must-fix or should-fix, go back to the full pipeline.
 2. **Search seat.** Dispatch a cheap read-only agent to pin the files, functions and rough
    line numbers. In Claude Code, the built-in Explore agent on a small model works.
 3. **Split and dispatch.** Split the work by code area, not by item count, and never give
@@ -17,8 +25,10 @@ wrote or dispatched. `coordinator-rules.md` holds the reasons; this file holds t
    model explicitly. Workers commit to their own branch and push only if the repo has a
    remote. Branch from the latest main. Every worker, even a single one, gets its
    own branch and its own `git worktree`, which the manager creates; never work in the
-   user's own checkout and never run two workers in one working tree. Independent pieces
-   run in parallel.
+   user's own checkout and never run two workers in one working tree. Subagents usually
+   start in the main session's folder, not in their worktree, so the brief gives the
+   worktree as an absolute path and tells the worker to read, write and run commands only
+   under it. Independent pieces run in parallel.
 4. **Check artifacts.** When a worker says it is done, confirm the files it names exist and
    the commit is on its branch before going on. Incomplete work goes back to the same
    worker.
@@ -27,16 +37,20 @@ wrote or dispatched. `coordinator-rules.md` holds the reasons; this file holds t
    with a filled-in `templates/bounce-back.md`.
 6. **Review round 2.** Dispatch another fresh `reviewer` over the whole result. If it still
    finds a lot, run round 3. A fix made after the last round gets one check by a seat that
-   did not write it.
+   neither wrote nor dispatched it.
 7. **Tester.** Anything scripts cannot check, such as walking through a real page or
    judging visuals, goes to the `tester` agent. Its brief names the worktree folder or
    branch to test, where to run it, the steps, and what counts as a pass for each item;
    the tester does not check out branches itself. Failures go back to the worker as a
-   bounce-back, and a seat that did not write the fix checks it.
+   bounce-back, and a seat that neither wrote nor dispatched the fix checks it.
 8. **Merge** from the manager seat only. Follow the user's branch rules. If they have none,
    ask before merging into the main branch. If a merge conflicts, send it back to the
-   worker to rebase on the latest main, and have a seat that did not write the rebase
-   check it.
+   worker to rebase on the latest main, and have a seat that neither wrote nor dispatched
+   the rebase check it. After a branch is merged, remove its worktree
+   (`git worktree remove <path>`) and delete the merged branch (`git branch -d <branch>`),
+   so they do not pile up. If `git worktree remove` refuses because of leftover files, look
+   at them before using `--force`; if `-d` refuses after a squash or rebase merge, confirm
+   the change is on main before using `-D`.
 9. **Report** in a few lines: what changed, what the reviews found and how each finding was
    fixed, and anything left open.
 

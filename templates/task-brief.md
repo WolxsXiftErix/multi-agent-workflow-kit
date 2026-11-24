@@ -4,7 +4,11 @@
      page, and nothing else in the repo, finish the job and know when it is done? -->
 
 **Role:** worker. <If your tool has an advisor / consult model: do not call it.>
-**Where:** branch `<branch>`, cut from `<latest main commit>`, working folder `<path>`.
+**Where:** branch `<branch>`, cut from `<latest main commit>`, working folder
+`<absolute path of your worktree>`. You may start in a different folder: `cd` there first,
+confirm that `git rev-parse --show-toplevel` prints this path, and use absolute paths
+under it for every read, edit and command. Some tools reset the working folder between
+commands, so start every command with `cd <path> &&`. Do not edit files outside it.
 **Expected time to deliver:** `<minutes>`. Past twice that, hand in what you have.
 
 ## Goal

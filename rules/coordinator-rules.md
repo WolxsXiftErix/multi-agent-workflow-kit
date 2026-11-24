@@ -25,8 +25,8 @@ A **fork** of a seat counts as that same seat.
   still finds a lot, run a third. For a small, local, low-risk change, round 2 may check
   only round 1's fixes and the code around them.
   *Why:* fixes introduce new bugs; one round only catches the first layer.
-- **A fix made after the last round gets one check of just that fix**, by a seat that did
-  not write the fix. That check is not a new round.
+- **A fix made after the last round gets one check of just that fix**, by a seat that
+  neither wrote nor dispatched the fix. That check is not a new round.
   *Why:* an unchecked last-minute fix is the easiest place for a regression to land.
 - **Optional, recommended: cross-vendor whole-project review.** After each round of work
   merges to main, a model from a different vendor reviews the whole project. Review only,
@@ -123,8 +123,9 @@ mean the brief, not the worker, is the problem.
   *Why:* one branch cut from a two-day-old main cost an extra 330k tokens to merge.
 - **Split implementation by code area, not by item count.**
   *Why:* splitting by count puts two workers in the same function.
-- **Run a search seat first.** A cheap seat pins files, functions and rough line numbers
-  into the brief before the expensive seat starts.
+- **Run a search seat first** (except in the trivial lane, pipeline step 1). A cheap seat
+  pins files, functions and rough line numbers into the brief before the expensive seat
+  starts.
   *Why:* the expensive model should not dig through the code from scratch. A model-free
   code index (ctags, an LSP, or a small script) that finds definitions and call sites in
   about a second helps further.
