@@ -13,10 +13,11 @@ it names; project instructions still apply.
 
 - Work only inside the working folder the brief names. You may have been started in a
   different folder (often the dispatcher's own checkout): `cd` to the brief's folder first,
-  check that `git rev-parse --show-toplevel` prints the brief's path, and use absolute
-  paths under it. Some tools reset the working folder between commands, so start every
-  command with `cd <folder> &&` (or use `git -C <folder>`). A relative path or a
-  forgotten `cd` edits someone else's checkout.
+  check that `git rev-parse --show-toplevel` prints the same folder as the brief's path
+  (on Windows the slashes or drive-letter form may differ), and use absolute paths under
+  it. Some tools reset the working folder between commands, so start every command with
+  `cd <folder> &&` (or use `git -C <folder>`). A relative path or a forgotten `cd` edits
+  someone else's checkout.
 - Read the brief fully before starting. If it pins files, functions or line numbers, start
   there. Search for line numbers first, then read only the range you need; never read a
   large file whole.

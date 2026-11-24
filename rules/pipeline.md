@@ -12,10 +12,10 @@ wrote or dispatched. `coordinator-rules.md` holds the reasons; this file holds t
    a comment or doc edit, nothing near a trust boundary), and you can already name the
    file, skip step 2 and step 7 and dispatch one worker. If something needs a real-page
    check, it is not trivial. Round 1 is still a fresh `reviewer` over the diff; round 2
-   is another fresh `reviewer` over the same diff plus any fixes made after round 1.
-   Everything else still applies: own branch and worktree, reviewers
-   that neither wrote nor dispatched the work, and the merge from the manager seat. If
-   round 1 reports any must-fix or should-fix, go back to the full pipeline.
+   is another fresh `reviewer` (step 6 says what it must cover). Everything else still
+   applies: own branch and worktree, reviewers that neither wrote nor dispatched the
+   work, and the merge from the manager seat. If round 1 reports any must-fix or
+   should-fix, the change was not trivial after all: go back to the full pipeline.
 2. **Search seat.** Dispatch a cheap read-only agent to pin the files, functions and rough
    line numbers. In Claude Code, the built-in Explore agent on a small model works.
 3. **Split and dispatch.** Split the work by code area, not by item count, and never give
@@ -35,9 +35,10 @@ wrote or dispatched. `coordinator-rules.md` holds the reasons; this file holds t
 5. **Review round 1.** Dispatch a fresh `reviewer` with the diff and a filled-in
    `templates/review-prompt.md`, not the worker's report. Send findings back to the worker
    with a filled-in `templates/bounce-back.md`.
-6. **Review round 2.** Dispatch another fresh `reviewer` over the whole result. If it still
-   finds a lot, run round 3. A fix made after the last round gets one check by a seat that
-   neither wrote nor dispatched it.
+6. **Review round 2.** Dispatch another fresh `reviewer` over the whole result (for a
+   small, local, low-risk change it may check only round 1's fixes and the code around
+   them). If it still finds a lot, run round 3. A fix made after the last round gets one
+   check by a seat that neither wrote nor dispatched it.
 7. **Tester.** Anything scripts cannot check, such as walking through a real page or
    judging visuals, goes to the `tester` agent. Its brief names the worktree folder or
    branch to test, where to run it, the steps, and what counts as a pass for each item;

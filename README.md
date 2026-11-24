@@ -80,10 +80,13 @@ manager ──> search seat ──> worker ──> review 1 ──> fix ──> 
 ```
 
 - A third review round runs when round 2 still finds a lot.
+- A small, local, low-risk change (a typo, a one-line fix) takes the trivial lane: no
+  search seat, no tester, one worker, and still two fresh reviewers.
 - Anything scripts cannot check (walking through a real page, judging visuals) goes to a
   separate tester seat that only tests.
 - Only the manager merges. Workers commit to their own branch (and push it, if the repo
-  has a remote) and report back; nobody else merges.
+  has a remote) and report back; nobody else merges. After a merge, the manager removes
+  the worktree and deletes the merged branch.
 
 ## Glossary
 
@@ -97,7 +100,7 @@ manager ──> search seat ──> worker ──> review 1 ──> fix ──> 
 | Reviewer | Review-only seat. Reads the diff, reports findings, never edits. |
 | Tester | Test-only seat for what scripts cannot check. Reports pass / fail with evidence. |
 | Brief | The self-contained task description a seat receives. It is the only context that seat has. |
-| Round | One full review pass by a fresh seat, followed by fixes. |
+| Round | One review pass by a fresh seat, followed by fixes. |
 
 ## Files
 
@@ -125,12 +128,15 @@ LICENSE                        MIT
 3. For each piece of work: have a cheap search seat pin the files and line numbers, fill in
    `templates/task-brief.md`, and dispatch one worker per code area. In Claude Code, for
    example: "Use the worker subagent on Sonnet with this brief: ...". Claude Code's
-   built-in Explore agent works as the search seat.
+   built-in Explore agent works as the search seat. For a small, local, low-risk change
+   where you can already name the file, skip the search seat (the trivial lane in
+   `rules/pipeline.md` step 1).
 4. When the worker reports, check the artifacts (files exist, commit is on the branch)
    before you believe "done".
 5. Fill in `templates/review-prompt.md` and give it to a fresh reviewer with the diff.
    Send findings back to the worker with `templates/bounce-back.md`. Repeat for round 2.
-6. Merge yourself, from the manager seat only.
+6. Merge yourself, from the manager seat only, then remove the worker's worktree and
+   delete the merged branch.
 
 ## Using it with your tool
 
@@ -162,7 +168,8 @@ works as long as you can (a) give a seat a role prompt and a brief, (b) keep the
 and reviewer in separate contexts, and (c) see the resulting diff.
 
 If your tool cannot spawn sub-tasks at all, run each seat as a separate session or
-terminal. The rules still hold: separate contexts, writer never reviews, manager merges.
+terminal. The rules still hold: separate contexts, writer and dispatcher never review,
+manager merges.
 
 ## Using it with an orchestrator
 
@@ -179,7 +186,9 @@ orchestrator's supervisor plays the kit's manager seat.
   role prompts for the orchestrator's agents, with an explicit model for each if the
   orchestrator lets you set one.
 - If the orchestrator already creates a worktree and branch per worker, that covers the
-  own-branch-and-worktree part of pipeline step 3; still make sure each branch starts from the latest main.
+  own-branch-and-worktree part of pipeline step 3; still make sure each branch starts
+  from the latest main. Also check whether it removes the worktrees and branches after a
+  merge; if not, the supervisor does (pipeline step 8).
 - If the supervisor that hands out the work also reviews it before merging, add a separate
   reviewer seat in front of the merge. Under the iron rule, the seat that dispatched the
   work does not review it; the supervisor still merges.
